@@ -41,7 +41,7 @@ Settings
 
 You can use the following options to tweak the behavior of the script. You can
 either make the changes in-place (at the top of the script) or put them after
-sourcing the script in your `.bashrc`. You can also mondify them on-the-fly if
+sourcing the script in your `.bashrc`. You can also modify them on-the-fly if
 you want the changes to only affect your current Bash session.
 
 * `BCT_ENABLE=1`: Setting this to 0 disables the printing of timings.
