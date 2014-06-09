@@ -26,9 +26,11 @@ To set up this script, you can
 
 1. Download `bash_command_timer.sh` somewhere, and add the following to your
    `~/.bashrc` (replace with actual path where you saved the script):
+
    ```bash
    source ~/.bash_command_timer.sh
    ```
+
 2. Alternatively, you can simply copy and paste the contents of
    `bash_command_timer.sh` into your `~/.bashrc`.
 
