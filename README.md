@@ -37,5 +37,5 @@ That's it :)
 Details
 -------
 For an explanation of how the script works, you're welcome to check out my blog
-post: [Bash Command Timer With the DEBUG trap and
-PROMPT_COMMAND](http://seasonofcode.com/posts/bash-command-timer-with-the-debug-trap-and-prompt_command.html).
+post: [Hacking Bash: The DEBUG trap and
+PROMPT_COMMAND](http://seasonofcode.com/posts/hacking-bash-the-debug-trap-and-prompt_command.html).
