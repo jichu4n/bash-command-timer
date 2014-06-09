@@ -35,7 +35,7 @@ function BCTPreCommand() {
     return
   fi
   unset BCT_AT_PROMPT
-  COMMAND_START_TIME=$(date '+%s.%N')
+  BCT_COMMAND_START_TIME=$(date '+%s.%N')
 }
 trap 'BCTPreCommand' DEBUG
 
@@ -53,7 +53,7 @@ function BCTPostCommand() {
     return
   fi
 
-  local command_start_time=$COMMAND_START_TIME
+  local command_start_time=$BCT_COMMAND_START_TIME
   local command_end_time=$(date '+%s.%N')
   # The following Python code is both Python 2.x and 3.x compatible.
   python << EOF
