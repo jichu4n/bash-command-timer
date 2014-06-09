@@ -36,6 +36,26 @@ To set up this script, you can
 
 That's it :)
 
+Settings
+--------
+
+You can use the following options to tweak the behavior of the script. You can
+either make the changes in-place (at the top of the script) or put them after
+sourcing the script in your `.bashrc`. You can also mondify them on-the-fly if
+you want the changes to only affect your current Bash session.
+
+* `BCT_ENABLE=1`: Setting this to 0 disables the printing of timings.
+* `BCT_COLOR='34'`: The color of the output. This should be a color string
+  usable in a VT100 escape sequence (see
+  [Wikipedia](http://en.wikipedia.org/wiki/ANSI_escape_code#Colors)), without
+  the escape sequence prefix and suffix. For example, bold red would be
+  `'1;31'`.
+* `BCT_TIME_FORMAT='%b %d %I:%M%p'`: The display format of the current time.
+  This is a strftime format string (see http://strftime.org/). If empty, the
+  current time will not be printed.
+* `BCT_MILLIS=1`: Whether to print timings to millisecond precision. If set to
+  zero, will print timings up to seconds.
+
 Details
 -------
 For an explanation of how the script works, you're welcome to check out my blog

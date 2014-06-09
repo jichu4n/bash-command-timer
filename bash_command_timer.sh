@@ -23,6 +23,43 @@
 # installation instructions, please visit the GitHub project page at
 #     https://github.com/jichuan89/bash-command-timer
 
+# SETTINGS
+# ========
+#
+# Whether to enable the command timer by default.
+#
+# To temporarily disable the printing of timing information, type the following
+# in a session:
+#     BCT_ENABLE=0
+# To re-enable:
+#     BCT_ENABLE=1
+BCT_ENABLE=1
+
+# The color of the output.
+#
+# This should be a color string  usable in a VT100 escape sequence (see
+# http://en.wikipedia.org/wiki/ANSI_escape_code#Colors), without the
+# escape sequence prefix and suffix. For example, bold red would be '1;31'.
+BCT_COLOR='34'
+
+# The display format of the current time.
+#
+# This is a strftime format string (see http://strftime.org/). To tweak the
+# display format of the current time, change the following line to your desired
+# pattern.
+#
+# If empty, disables printing of current time.
+BCT_TIME_FORMAT='%b %d %I:%M%p'
+
+# Whether to print command timings up to millisecond precision.
+#
+# If set to 0, will print up to seconds precision.
+BCT_MILLIS=1
+
+
+# IMPLEMENTATION
+# ==============
+
 # The debug trap is invoked before the execution of each command typed by the
 # user (once for every command in a composite command) and again before the
 # execution of PROMPT_COMMAND after the user's command finishes. Thus, to be
@@ -53,6 +90,10 @@ function BCTPostCommand() {
     return
   fi
 
+  if [ -z "$BCT_ENABLE" ] || [ "$BCT_ENABLE" -ne 1 ]; then
+    return
+  fi
+
   local command_start_time=$BCT_COMMAND_START_TIME
   local command_end_time=$(date '+%s.%N')
   # The following Python code is both Python 2.x and 3.x compatible.
@@ -77,11 +118,17 @@ if num_hours:
   time_strings.append('%dh' % int(num_hours))
 if num_mins:
   time_strings.append('%dm' % int(num_mins))
-time_strings.append('%ds%03d' % (int(num_secs), int(num_millis)))
+if '${BCT_MILLIS}' == '1':
+  time_strings.append('%ds%03d' % (int(num_secs), int(num_millis)))
+else:
+  time_strings.append('%ds' % int(num_secs))
 now_string = datetime.datetime.fromtimestamp(${command_end_time}).strftime(
-    '%I:%M%p')
-output_string = '[ %s | %s ]' % (' '.join(time_strings), now_string)
-output_string_colored = '\033[34m%s\033[0m' % output_string
+    '${BCT_TIME_FORMAT}')
+if now_string:
+  output_string = '[ %s | %s ]' % (' '.join(time_strings), now_string)
+else:
+  output_string = '[ %s ]' % ' '.join(time_strings)
+output_string_colored = '\033[${BCT_COLOR}m%s\033[0m' % output_string
 
 # Print.
 num_spaces = ${COLUMNS} - len(output_string)
