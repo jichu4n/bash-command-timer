@@ -60,6 +60,15 @@ BCT_MILLIS=1
 # IMPLEMENTATION
 # ==============
 
+# Command to print out the current time, in the format seconds.nanoseconds.
+# This is required because the "date" command in OS X and BSD do not support the
+# %N sequence.
+if date +'%N' | grep -q 'N'; then
+  BCTTime="perl -MTime::HiRes -e 'printf(\"%.9f\\n\",Time::HiRes::time())'"
+else
+  BCTTime="date '+%s.%N'"
+fi
+
 # The debug trap is invoked before the execution of each command typed by the
 # user (once for every command in a composite command) and again before the
 # execution of PROMPT_COMMAND after the user's command finishes. Thus, to be
@@ -72,7 +81,7 @@ function BCTPreCommand() {
     return
   fi
   unset BCT_AT_PROMPT
-  BCT_COMMAND_START_TIME=$(date '+%s.%N')
+  BCT_COMMAND_START_TIME=$(eval $BCTTime)
 }
 trap 'BCTPreCommand' DEBUG
 
@@ -95,7 +104,7 @@ function BCTPostCommand() {
   fi
 
   local command_start_time=$BCT_COMMAND_START_TIME
-  local command_end_time=$(date '+%s.%N')
+  local command_end_time=$(eval $BCTTime)
   # The following Python code is both Python 2.x and 3.x compatible.
   python << EOF
 
