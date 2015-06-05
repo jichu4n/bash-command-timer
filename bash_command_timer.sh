@@ -60,15 +60,31 @@ BCT_MILLIS=1
 # IMPLEMENTATION
 # ==============
 
-# Command to print out the current time, in the format seconds.nanoseconds.
-# This is required because the "date" command in OS X and BSD do not support the
-# %N sequence.
+# BCTTime:
+#
+# Command to print out the current time in nanoseconds. This is required
+# because the "date" command in OS X and BSD do not support the %N sequence.
+#
+# BCTPrintTime:
+#
+# Command to print out a timestamp using BCT_TIME_FORMAT. The timestamp should
+# be in seconds. This is required because the "date" command in Linux and OS X
+# use different arguments to specify the timestamp to print.
 if date +'%N' | grep -qv 'N'; then
-  BCTTime="date '+%s.%N'"
+  BCTTime="date '+%s%N'"
+  function BCTPrintTime() {
+    date --date="@$1" +"$BCT_TIME_FORMAT"
+  }
 elif hash gdate 2>/dev/null && gdate +'%N' | grep -qv 'N'; then
-  BCTTime="gdate '+%s.%N'"
+  BCTTime="gdate '+%s%N'"
+  function BCTPrintTime() {
+    gdate --date="@$1" +"$BCT_TIME_FORMAT"
+  }
 elif hash perl 2>/dev/null; then
-  BCTTime="perl -MTime::HiRes -e 'printf(\"%.9f\\n\",Time::HiRes::time())'"
+  BCTTime="perl -MTime::HiRes -e 'printf(\"%d\",Time::HiRes::time()*1000000000)'"
+  function BCTPrintTime() {
+    date -r "$1" +"$BCT_TIME_FORMAT"
+  }
 else
   echo 'No compatible date, gdate or perl commands found, aborting'
   exit 1
@@ -108,46 +124,46 @@ function BCTPostCommand() {
     return
   fi
 
+  # BCTTime prints out time in nanoseconds.
+  local MSEC=1000000
+  local SEC=$(($MSEC * 1000))
+  local MIN=$((60 * $SEC))
+  local HOUR=$((60 * $MIN))
+  local DAY=$((24 * $HOUR))
+
   local command_start_time=$BCT_COMMAND_START_TIME
   local command_end_time=$(eval $BCTTime)
-  # The following Python code is both Python 2.x and 3.x compatible.
-  python << EOF
+  local command_time=$(($command_end_time - $command_start_time))
+  local num_days=$(($command_time / $DAY))
+  local num_hours=$(($command_time % $DAY / $HOUR))
+  local num_mins=$(($command_time % $HOUR / $MIN))
+  local num_secs=$(($command_time % $MIN / $SEC))
+  local num_msecs=$(($command_time % $SEC / $MSEC))
+  local time_str=""
+  if [ $num_days -gt 0 ]; then
+    time_str="${time_str}${num_days}d "
+  fi
+  if [ $num_hours -gt 0 ]; then
+    time_str="${time_str}${num_hours}h "
+  fi
+  if [ $num_mins -gt 0 ]; then
+    time_str="${time_str}${num_mins}m "
+  fi
+  local num_msecs_pretty=''
+  if [ $BCT_MILLIS -eq 1 ]; then
+    local num_msecs_pretty=$(printf '%03d' $num_msecs)
+  fi
+  time_str="${time_str}${num_secs}s${num_msecs_pretty}"
+  now_str=$(BCTPrintTime $(($command_end_time / $SEC)))
+  if [ -n "$now_str" ]; then
+    local output_str="[ $time_str | $now_str ]"
+  else
+    local output_str="[ $time_str ]"
+  fi
+  local output_str_colored="\033[${BCT_COLOR}m${output_str}\033[0m"
 
-from __future__ import print_function
-import datetime
-
-# Break down the execution time.
-command_time = ${command_end_time} - ${command_start_time}
-num_days, r = divmod(command_time, 24 * 60 * 60)
-num_hours, r = divmod(r, 60 * 60)
-num_mins, r = divmod(r, 60)
-num_secs, r = divmod(r, 1)
-num_millis = r * 1000
-
-# Humanize.
-time_strings = []
-if num_days:
-  time_strings.append('%dd' % int(num_days))
-if num_hours:
-  time_strings.append('%dh' % int(num_hours))
-if num_mins:
-  time_strings.append('%dm' % int(num_mins))
-if '${BCT_MILLIS}' == '1':
-  time_strings.append('%ds%03d' % (int(num_secs), int(num_millis)))
-else:
-  time_strings.append('%ds' % int(num_secs))
-now_string = datetime.datetime.fromtimestamp(${command_end_time}).strftime(
-    '${BCT_TIME_FORMAT}')
-if now_string:
-  output_string = '[ %s | %s ]' % (' '.join(time_strings), now_string)
-else:
-  output_string = '[ %s ]' % ' '.join(time_strings)
-output_string_colored = '\033[${BCT_COLOR}m%s\033[0m' % output_string
-
-# Print.
-num_spaces = ${COLUMNS} - len(output_string)
-print('\r%s%s' % (' ' * num_spaces, output_string_colored), end=None)
-
-EOF
+  local num_leading_spaces=$(($COLUMNS - ${#output_str}))
+  eval "printf ' %.0s' {1..$num_leading_spaces}"
+  echo -e "$output_str_colored"
 }
 PROMPT_COMMAND='BCTPostCommand'

@@ -15,14 +15,20 @@ Demo:
 
 ![Demo Screen-cap](https://github.com/jichuan89/bash-command-timer/raw/master/bash_command_timer_screenshot.gif)
 
+Requirements
+------------
+
+This script should run pretty much out of the box on modern Linux and Mac OS X
+systems. Please report any incompatibilities on
+[on GitHub](https://github.com/jichu4n/bash-command-timer/issues).
+
+Note that this script will also conflict with any other script that uses the
+DEBUG trap and `PROMPT_COMMAND`.
+
 Installation
 ------------
 
-This script requires Python (either Python 2.x or 3.x) to be installed. Note
-that it will also conflict with any other script that uses the DEBUG trap and
-`PROMPT_COMMAND`.
-
-To set up this script, you can
+To set up this extension, you can
 
 1. Download `bash_command_timer.sh` somewhere, and add the following to your
    `~/.bashrc` (replace with actual path where you saved the script):
