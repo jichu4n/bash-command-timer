@@ -63,10 +63,15 @@ BCT_MILLIS=1
 # Command to print out the current time, in the format seconds.nanoseconds.
 # This is required because the "date" command in OS X and BSD do not support the
 # %N sequence.
-if date +'%N' | grep -q 'N'; then
+if date +'%N' | grep -qv 'N'; then
+  BCTTime="date '+%s.%N'"
+elif hash gdate 2>/dev/null && gdate +'%N' | grep -qv 'N'; then
+  BCTTime="gdate '+%s.%N'"
+elif hash perl 2>/dev/null; then
   BCTTime="perl -MTime::HiRes -e 'printf(\"%.9f\\n\",Time::HiRes::time())'"
 else
-  BCTTime="date '+%s.%N'"
+  echo 'No compatible date, gdate or perl commands found, aborting'
+  exit 1
 fi
 
 # The debug trap is invoked before the execution of each command typed by the
