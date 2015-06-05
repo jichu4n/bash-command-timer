@@ -40,6 +40,9 @@ BCT_ENABLE=1
 # This should be a color string  usable in a VT100 escape sequence (see
 # http://en.wikipedia.org/wiki/ANSI_escape_code#Colors), without the
 # escape sequence prefix and suffix. For example, bold red would be '1;31'.
+#
+# If empty, disable colored output. Set it to empty if your terminal does not
+# support VT100 escape sequences.
 BCT_COLOR='34'
 
 # The display format of the current time.
@@ -160,7 +163,17 @@ function BCTPostCommand() {
   else
     local output_str="[ $time_str ]"
   fi
-  local output_str_colored="\033[${BCT_COLOR}m${output_str}\033[0m"
+  if [ -n "$BCT_COLOR" ]; then
+    local output_str_colored="\033[${BCT_COLOR}m${output_str}\033[0m"
+  else
+    local output_str_colored="${output_str}"
+  fi
+
+  # Print COLUMNS spaces, then go to the beginning of the line. If the command
+  # printed output with a terminating new line, the cursor effectively doesn't
+  # move. Otherwise, the cursor will move to the beginning of the next line.
+  eval "printf ' %.0s' {1..$COLUMNS}"
+  echo -ne "\r"
 
   local num_leading_spaces=$(($COLUMNS - ${#output_str}))
   eval "printf ' %.0s' {1..$num_leading_spaces}"
