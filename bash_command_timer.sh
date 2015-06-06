@@ -153,7 +153,7 @@ function BCTPostCommand() {
     time_str="${time_str}${num_mins}m "
   fi
   local num_msecs_pretty=''
-  if [-n "$BCT_MILLIS" ] && [ $BCT_MILLIS -eq 1 ]; then
+  if [ -n "$BCT_MILLIS" ] && [ $BCT_MILLIS -eq 1 ]; then
     local num_msecs_pretty=$(printf '%03d' $num_msecs)
   fi
   time_str="${time_str}${num_secs}s${num_msecs_pretty}"
