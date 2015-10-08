@@ -169,14 +169,27 @@ function BCTPostCommand() {
     local output_str_colored="${output_str}"
   fi
 
-  # Print COLUMNS spaces, then go to the beginning of the line. If the command
-  # printed output with a terminating new line, the cursor effectively doesn't
-  # move. Otherwise, the cursor will move to the beginning of the next line.
-  eval "printf ' %.0s' {1..$COLUMNS}"
-  echo -ne "\r"
+  # Get the column of the current cursor. Based on
+  # http://stackoverflow.com/a/8353312.
+  local dummy
+  local pos
+  local col
+  echo -ne "\033[6n"
+  read -s -d\[ dummy
+  read -s -d R pos
+  col=$(echo $pos | cut -d\; -f2)
 
-  local num_leading_spaces=$(($COLUMNS - ${#output_str}))
-  eval "printf ' %.0s' {1..$num_leading_spaces}"
-  echo -e "$output_str_colored"
+  # If the command printed output without a terminating new line, move to
+  # beginning of next line.
+  if [ $col -gt 1 ]; then
+    echo
+  fi
+
+  # Move to column (screen width - length of output_str)
+  local output_start_col=$(($COLUMNS - ${#output_str}))
+  echo -ne "\033[${output_start_col}C"
+
+  # Finally, print output.
+  echo -e "${output_str_colored}"
 }
 PROMPT_COMMAND='BCTPostCommand'
