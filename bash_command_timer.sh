@@ -170,14 +170,17 @@ function BCTPostCommand() {
   fi
 
   # Get the column of the current cursor. Based on
-  # http://stackoverflow.com/a/8353312.
-  local dummy
+  # http://stackoverflow.com/a/2575525
+  local oldstty
   local pos
   local col
-  echo -ne "\033[6n"
-  read -s -d\[ dummy
-  read -s -d R pos
-  col=$(echo $pos | cut -d\; -f2)
+  exec < /dev/tty
+  oldstty=$(stty -g)
+  stty raw -echo min 0
+  echo -ne "\033[6n" > /dev/tty
+  IFS=';' read -r -d R -a pos
+  stty $oldstty
+  col=$(( ${pos[1]} - 1 ))
 
   # If the command printed output without a terminating new line, move to
   # beginning of next line.
