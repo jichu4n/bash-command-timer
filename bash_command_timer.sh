@@ -169,28 +169,10 @@ function BCTPostCommand() {
     local output_str_colored="${output_str}"
   fi
 
-  # Get the column of the current cursor. Based on
-  # http://stackoverflow.com/a/2575525
-  local col=$($SHELL -c '
-      exec < /dev/tty;
-      oldstty=$(stty -g);
-      stty raw -echo min 0;
-      echo -ne "\033[6n" > /dev/tty;
-      IFS=";" read -r -d R -a pos;
-      stty $oldstty;
-      col=$(( ${pos[1]} - 1 ));
-      echo $col')
-
-  # If the command printed output without a terminating new line, move to
-  # beginning of next line.
-  if [ $col -gt 1 ]; then
-    echo
-  fi
-
-  # Move to column (screen width - length of output_str)
-  local output_start_col=$(($COLUMNS - ${#output_str}))
-  echo -ne "\033[${output_start_col}C"
-
+  # Move to the end of the line. This will NOT wrap to the next line.
+  echo -ne "\033[${COLUMNS}C"
+  # Move back (length of output_str) columns.
+  echo -ne "\033[${#output_str}D"
   # Finally, print output.
   echo -e "${output_str_colored}"
 }
