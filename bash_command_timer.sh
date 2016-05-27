@@ -59,6 +59,10 @@ BCT_TIME_FORMAT='%b %d %I:%M%p'
 # If set to 0, will print up to seconds precision.
 BCT_MILLIS=1
 
+# Wheter to wrap to the next line if the output string would overlap with
+# characters of last command's output
+BCT_WRAP=0
+
 
 # IMPLEMENTATION
 # ==============
@@ -168,9 +172,18 @@ function BCTPostCommand() {
   else
     local output_str_colored="${output_str}"
   fi
+  # Trick to make sure the output wraps to the next line if there is not
+  # enough room for the string (only when BCT_WRAP == 1)
+  if [ -n "$BCT_WRAP" ] && [ $BCT_WRAP -eq 1 ]; then
+    # we'll print as many spaces as characters exist in output_str, plus 2
+    local wrap_space_prefix="${output_str//?/ }  "
+  else
+    local wrap_space_prefix=""
+  fi
 
-  # Move to the end of the line. This will NOT wrap to the next line.
-  echo -ne "\033[${COLUMNS}C"
+  # Move to the end of the line. This will NOT wrap to the next line
+  # unless you have BCT_WRAP == 1
+  echo -ne "$wrap_space_prefix\033[${COLUMNS}C"
   # Move back (length of output_str) columns.
   echo -ne "\033[${#output_str}D"
   # Finally, print output.
