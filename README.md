@@ -65,5 +65,5 @@ you want the changes to only affect your current Bash session.
 Details
 -------
 For an explanation of how the script works, you're welcome to check out my blog
-post: [Hacking Bash: The DEBUG trap and
-PROMPT_COMMAND](http://seasonofcode.com/posts/hacking-bash-the-debug-trap-and-prompt_command.html).
+post: [DEBUG trap and
+PROMPT_COMMAND in Bash](https://seasonofcode.com/posts/debug-trap-and-prompt_command-in-bash.html).
