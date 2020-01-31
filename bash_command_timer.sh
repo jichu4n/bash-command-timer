@@ -43,7 +43,9 @@ BCT_ENABLE=1
 #
 # If empty, disable colored output. Set it to empty if your terminal does not
 # support VT100 escape sequences.
-BCT_COLOR='34'
+#
+# The color of the output is set in the function BCTPreCommand
+# e.g. BCT_COLOR='34'
 
 # The display format of the current time.
 #
