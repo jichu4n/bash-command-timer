@@ -105,6 +105,15 @@ fi
 # flag is set and clear it after the first execution.
 BCT_AT_PROMPT=1
 function BCTPreCommand() {
+  local EXIT="$?"
+  if [ $EXIT == 0 ]
+  then
+    # colour for exit without error
+    BCT_COLOR='36'
+  else
+    # colour for exit with error
+    BCT_COLOR='91'
+  fi
   if [ -z "$BCT_AT_PROMPT" ]; then
     return
   fi
