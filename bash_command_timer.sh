@@ -35,17 +35,18 @@
 #     BCT_ENABLE=1
 BCT_ENABLE=1
 
-# The color of the output.
+# The color of the output for successful and failed commands respectively.
 #
-# This should be a color string  usable in a VT100 escape sequence (see
+# They should be a color string usable in a VT100 escape sequence (see
 # http://en.wikipedia.org/wiki/ANSI_escape_code#Colors), without the
 # escape sequence prefix and suffix. For example, bold red would be '1;31'.
 #
-# If empty, disable colored output. Set it to empty if your terminal does not
-# support VT100 escape sequences.
-#
 # The color of the output is set in the function BCTPreCommand
-# e.g. BCT_COLOR='34'
+#
+# If empty, disable colored output. Set them to empty if your terminal does not
+# support VT100 escape sequences.
+BCT_SUCCESS_COLOR='32'
+BCT_ERROR_COLOR='91'
 
 # The display format of the current time.
 #
@@ -111,10 +112,10 @@ function BCTPreCommand() {
   if [ $EXIT == 0 ]
   then
     # colour for exit without error
-    BCT_COLOR='36'
+    BCT_COLOR=$BCT_SUCCESS_COLOR
   else
     # colour for exit with error
-    BCT_COLOR='91'
+    BCT_COLOR=$BCT_ERROR_COLOR
   fi
   if [ -z "$BCT_AT_PROMPT" ]; then
     return
