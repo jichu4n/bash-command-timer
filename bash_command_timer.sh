@@ -105,6 +105,13 @@ fi
 # flag is set and clear it after the first execution.
 BCT_AT_PROMPT=1
 function BCTPreCommand() {
+  local EXIT="$?"
+  if [ $EXIT == 0 ]
+  then
+    BCT_COLOR='38;5;028'
+  else
+    BCT_COLOR='38;5;052'
+  fi
   if [ -z "$BCT_AT_PROMPT" ]; then
     return
   fi
@@ -161,9 +168,10 @@ function BCTPostCommand() {
     local num_msecs_pretty=$(printf '%03d' $num_msecs)
   fi
   time_str="${time_str}${num_secs}s${num_msecs_pretty}"
+  start_str=$(BCTPrintTime $(($command_start_time / $SEC)))
   now_str=$(BCTPrintTime $(($command_end_time / $SEC)))
-  if [ -n "$now_str" ]; then
-    local output_str="[ $time_str | $now_str ]"
+  if [ -n "$now_str" ] && [ -n "$start_str" ]; then
+    local output_str="[ $time_str | $start_str > $now_str ]"
   else
     local output_str="[ $time_str ]"
   fi
