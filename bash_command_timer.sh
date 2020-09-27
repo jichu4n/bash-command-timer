@@ -16,12 +16,16 @@
 #                                                                             #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+
+
 # A simple Bash script for printing timing information for each command line
 # executed.
 #
 # For the most up-to-date version, as well as further information and
 # installation instructions, please visit the GitHub project page at
 #     https://github.com/jichuan89/bash-command-timer
+
+
 
 # SETTINGS
 # ========
@@ -66,6 +70,10 @@ BCT_MILLIS=1
 # characters of last command's output
 BCT_WRAP=0
 
+# Path to bash-preexec
+BCT_BASH_PREEXEC=$(dirname "${BASH_SOURCE[0]}")/bash-preexec/bash-preexec.sh
+
+
 
 # IMPLEMENTATION
 # ==============
@@ -100,6 +108,7 @@ else
   exit 1
 fi
 
+
 # The debug trap is invoked before the execution of each command typed by the
 # user (once for every command in a composite command) and again before the
 # execution of PROMPT_COMMAND after the user's command finishes. Thus, to be
@@ -123,10 +132,11 @@ function BCTPreCommand() {
   unset BCT_AT_PROMPT
   BCT_COMMAND_START_TIME=$(eval $BCTTime)
 }
-trap 'BCTPreCommand' DEBUG
+
 
 # Bash will automatically set COLUMNS to the current terminal width.
 export COLUMNS
+
 
 # Flag to prevent printing out the time upon first login.
 BCT_FIRST_PROMPT=1
@@ -201,4 +211,9 @@ function BCTPostCommand() {
   # Finally, print output.
   echo -e "${output_str_colored}"
 }
-PROMPT_COMMAND='BCTPostCommand'
+
+
+# Register callbacks into bash-preexec
+preexec_functions+=(BCTPreCommand)
+precmd_functions+=(BCTPostCommand)
+source "$BCT_BASH_PREEXEC"
