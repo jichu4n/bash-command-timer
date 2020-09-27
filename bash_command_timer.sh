@@ -70,9 +70,6 @@ BCT_MILLIS=1
 # characters of last command's output
 BCT_WRAP=0
 
-# Path to bash-preexec
-BCT_BASH_PREEXEC=$(dirname "${BASH_SOURCE[0]}")/bash-preexec/bash-preexec.sh
-
 
 
 # IMPLEMENTATION
@@ -107,6 +104,23 @@ else
   echo 'No compatible date, gdate or perl commands found, aborting'
   exit 1
 fi
+
+
+# Source bash-preexec
+if [ -z "$BASH_PREEXEC_LOCATION" ]; then
+    # Best case: standalone install at standard location
+    BASH_PREEXEC_LOCATION=/usr/share/bash-preexec/bash-preexec.sh
+fi
+if [ ! -f "$BASH_PREEXEC_LOCATION" ]; then
+    # Fallback: bundled with bash_command_timer.sh
+    BASH_PREEXEC_LOCATION="$( dirname "${BASH_SOURCE[0]}" )/bash-preexec/bash-preexec.sh"
+fi
+if ! [ -f "$BASH_PREEXEC_LOCATION" ]; then
+    echo "Could not find bash-preexec.sh"
+    exit 1
+fi
+source "$BASH_PREEXEC_LOCATION"
+
 
 
 # The debug trap is invoked before the execution of each command typed by the
@@ -216,4 +230,4 @@ function BCTPostCommand() {
 # Register callbacks into bash-preexec
 preexec_functions+=(BCTPreCommand)
 precmd_functions+=(BCTPostCommand)
-source "$BCT_BASH_PREEXEC"
+
