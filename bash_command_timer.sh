@@ -1,6 +1,6 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                                                             #
-#    Copyright (C) 2014 Chuan Ji <ji@chu4n.com>                               #
+#    Copyright (C) 2014-2020 Chuan Ji <chuan@jichu4n.com>                     #
 #                                                                             #
 #    Licensed under the Apache License, Version 2.0 (the "License");          #
 #    you may not use this file except in compliance with the License.         #
@@ -23,7 +23,7 @@
 #
 # For the most up-to-date version, as well as further information and
 # installation instructions, please visit the GitHub project page at
-#     https://github.com/jichuan89/bash-command-timer
+#     https://github.com/jichu4n/bash-command-timer
 
 
 
@@ -106,7 +106,7 @@ else
 fi
 
 
-# BCTPreCommand is trapped to the DEBUG trap, manually or through bash-preexec.
+# BCTPreCommand is trapped to the DEBUG trap, directly or through bash-preexec.
 # The debug trap is invoked before the execution of each command typed by the
 # user (once for every command in a composite command) and again before the
 # execution of PROMPT_COMMAND after the user's command finishes. Thus, to be
@@ -213,34 +213,35 @@ function BCTPostCommand() {
 
 # Callbacks BCTPreCommand() and BCTPostCommand() can be tied to the `DEBUG` 
 # trap and `PROMPT_COMMAND` variable in two ways: 
-#   * Manually, which makes the script self-contained but breaks compatibility 
+#   * Directly, which makes the script self-contained but breaks compatibility 
 #     with other scripts that use DEBUG/PROMPT_COMMAND,
 #   * Through `bash-preexec`, which allows several scripts to tie callbacks to
 #     DEBUG/PROMPT_COMMAND, but isn't self contained,
 #
 # If `bash-preexec` is found on the system, method 1 is used. Else, we fall 
-# back to the manual way. 
+# back to the direct way. 
 #
-function register_callbacks_with_bash_preexec() {
-  source "$BASH_PREEXEC_LOCATION"
+function BCTRegisterCallbacksWithBashPreexec() {
+  source "$1"
   preexec_functions+=(BCTPreCommand)
   precmd_functions+=(BCTPostCommand)
 }
-function register_callbacks_manually() {
+function BCTRegisterCallbacksDirectly() {
   trap 'BCTPreCommand' DEBUG
   PROMPT_COMMAND='BCTPostCommand'
 }
 # Case 1: User-supplied path via BASH_PREEXEC_LOCATION
 if ! [ -z "$BASH_PREEXEC_LOCATION" ] && [ -f "$BASH_PREEXEC_LOCATION" ]; then
-  register_callbacks_with_bash_preexec
+  BCTRegisterCallbacksWithBashPreexec "$BASH_PREEXEC_LOCATION"
 # Case 2: Common installation locations
 elif [ -f '/usr/share/bash-preexec/bash-preexec.sh' ]; then 
-  BASH_PREEXEC_LOCATION='/usr/share/bash-preexec/bash-preexec.sh'
-  register_callbacks_with_bash_preexec
+  BCTRegisterCallbacksWithBashPreexec '/usr/share/bash-preexec/bash-preexec.sh'
 elif [ -f '~/.bash-preexec.sh' ]; then 
-  BASH_PREEXEC_LOCATION='~/.bash-preexec.sh'
-  register_callbacks_with_bash_preexec
+  BCTRegisterCallbacksWithBashPreexec '~/.bash-preexec.sh'
 # Case 3: bash-preexec not found
 else 
-  register_callbacks_manually
+  BCTRegisterCallbacksDirectly
 fi
+unset -f BCTRegisterCallbacksWithBashPreexec
+unset -f BCTRegisterCallbacksDirectly
+
