@@ -106,23 +106,6 @@ else
 fi
 
 
-# Source bash-preexec
-if [ -z "$BASH_PREEXEC_LOCATION" ]; then
-    # Best case: standalone install at standard location
-    BASH_PREEXEC_LOCATION=/usr/share/bash-preexec/bash-preexec.sh
-fi
-if [ ! -f "$BASH_PREEXEC_LOCATION" ]; then
-    # Fallback: bundled with bash_command_timer.sh
-    BASH_PREEXEC_LOCATION="$( dirname "${BASH_SOURCE[0]}" )/bash-preexec/bash-preexec.sh"
-fi
-if ! [ -f "$BASH_PREEXEC_LOCATION" ]; then
-    echo "Could not find bash-preexec.sh"
-    exit 1
-fi
-source "$BASH_PREEXEC_LOCATION"
-
-
-
 # The debug trap is invoked before the execution of each command typed by the
 # user (once for every command in a composite command) and again before the
 # execution of PROMPT_COMMAND after the user's command finishes. Thus, to be
@@ -227,7 +210,36 @@ function BCTPostCommand() {
 }
 
 
-# Register callbacks into bash-preexec
-preexec_functions+=(BCTPreCommand)
-precmd_functions+=(BCTPostCommand)
-
+# Callbacks BCTPreCommand() and BCTPostCommand() can be tied to the `DEBUG` 
+# trap and `PROMPT_COMMAND` variable in two ways: 
+#   * Either manually, which allows the script to be self-contained be breaks 
+#     compatibility with any other script that uses this trap/variable
+#   * Either through `bash-preexec`, which allows several script to tie 
+#     callbacks to this trap/variable, but isn't self contained
+#
+# If `bash-preexec` is found on the system, then it is used. If not available,
+# fall back onto the manual way. 
+#
+function register_callbacks_with_bash_preexec() {
+  source "$BASH_PREEXEC_LOCATION"
+  preexec_functions+=(BCTPreCommand)
+  precmd_functions+=(BCTPostCommand)
+}
+function register_callbacks_manually() {
+  trap 'BCTPreCommand' DEBUG
+  PROMPT_COMMAND='BCTPostCommand'
+}
+# Case 1: User-supplied path via BASH_PREEXEC_LOCATION
+if ! [ -z "$BASH_PREEXEC_LOCATION" ] && [ -f "$BASH_PREEXEC_LOCATION" ]; then
+  register_callbacks_with_bash_preexec
+# Case 2: common installation location
+elif [ -f '/usr/share/bash-preexec/bash-preexec.sh' ]; then 
+  BASH_PREEXEC_LOCATION='/usr/share/bash-preexec/bash-preexec.sh'
+  register_callbacks_with_bash_preexec
+elif [ -f '~/.bash-preexec.sh' ]; then 
+  BASH_PREEXEC_LOCATION='~/.bash-preexec.sh'
+  register_callbacks_with_bash_preexec
+# Case 3: bash-preexec not found
+else 
+  register_callbacks_manually
+fi
