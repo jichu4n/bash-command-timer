@@ -13,7 +13,7 @@ execution time is formatted to be human readable; e.g., `2h 7m 42s301`.
 
 Demo:
 
-![Demo Screen-cap](https://github.com/jichuan89/bash-command-timer/raw/master/bash_command_timer_screenshot.gif)
+![Demo Screen-cap](https://github.com/jichu4n/bash-command-timer/raw/master/bash_command_timer_screenshot.gif)
 
 Requirements
 ------------
@@ -72,4 +72,5 @@ Details
 -------
 For an explanation of how the script works, you're welcome to check out my blog
 post: [DEBUG trap and
-PROMPT_COMMAND in Bash](https://seasonofcode.com/posts/debug-trap-and-prompt_command-in-bash.html).
+PROMPT_COMMAND in Bash](https://jichu4n.com/posts/debug-trap-and-prompt_command-in-bash.html).
+
