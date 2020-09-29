@@ -106,6 +106,7 @@ else
 fi
 
 
+# BCTPreCommand is trapped to the DEBUG trap, manually or through bash-preexec.
 # The debug trap is invoked before the execution of each command typed by the
 # user (once for every command in a composite command) and again before the
 # execution of PROMPT_COMMAND after the user's command finishes. Thus, to be
@@ -212,13 +213,13 @@ function BCTPostCommand() {
 
 # Callbacks BCTPreCommand() and BCTPostCommand() can be tied to the `DEBUG` 
 # trap and `PROMPT_COMMAND` variable in two ways: 
-#   * Either manually, which allows the script to be self-contained be breaks 
-#     compatibility with any other script that uses this trap/variable
-#   * Either through `bash-preexec`, which allows several script to tie 
-#     callbacks to this trap/variable, but isn't self contained
+#   * Manually, which makes the script self-contained but breaks compatibility 
+#     with other scripts that use DEBUG/PROMPT_COMMAND,
+#   * Through `bash-preexec`, which allows several scripts to tie callbacks to
+#     DEBUG/PROMPT_COMMAND, but isn't self contained,
 #
-# If `bash-preexec` is found on the system, then it is used. If not available,
-# fall back onto the manual way. 
+# If `bash-preexec` is found on the system, method 1 is used. Else, we fall 
+# back to the manual way. 
 #
 function register_callbacks_with_bash_preexec() {
   source "$BASH_PREEXEC_LOCATION"
@@ -232,7 +233,7 @@ function register_callbacks_manually() {
 # Case 1: User-supplied path via BASH_PREEXEC_LOCATION
 if ! [ -z "$BASH_PREEXEC_LOCATION" ] && [ -f "$BASH_PREEXEC_LOCATION" ]; then
   register_callbacks_with_bash_preexec
-# Case 2: common installation location
+# Case 2: Common installation locations
 elif [ -f '/usr/share/bash-preexec/bash-preexec.sh' ]; then 
   BASH_PREEXEC_LOCATION='/usr/share/bash-preexec/bash-preexec.sh'
   register_callbacks_with_bash_preexec
