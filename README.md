@@ -22,8 +22,11 @@ This script should run pretty much out of the box on modern Linux and Mac OS X
 systems. Please report any incompatibilities on
 [on GitHub](https://github.com/jichu4n/bash-command-timer/issues).
 
-Note that this script will also conflict with any other script that uses the
-DEBUG trap and `PROMPT_COMMAND`.
+Note that by default, this script will conflict with any other script that uses the
+DEBUG trap and `PROMPT_COMMAND`. However, if 
+[`bash-preexec`](https://github.com/rcaloras/bash-preexec) is detected on your 
+system, then it will be used to maintain compatibility with other scripts using
+`bash-preexec`.
 
 Installation
 ------------
@@ -61,6 +64,9 @@ you want the changes to only affect your current Bash session.
   current time will not be printed.
 * `BCT_MILLIS=1`: Whether to print timings to millisecond precision. If set to
   zero, will print timings up to seconds.
+* `BASH_PREEXEC_LOCATION='/usr/share/bash-preexec/bash-preexec.sh'`: If 
+  `bash-preexec` is installed in a non-standard location, you can set its path 
+  here
 
 Details
 -------
