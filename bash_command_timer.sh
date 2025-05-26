@@ -87,9 +87,17 @@ BCT_WRAP=0
 # use different arguments to specify the timestamp to print.
 if date +'%N' | grep -qv 'N'; then
   BCTTime="date '+%s%N'"
-  function BCTPrintTime() {
-    date --date="@$1" +"$BCT_TIME_FORMAT"
-  }
+  # The most recent macOS versions of "date" support the %N sequence but do not
+  # support the "--date" flag.  Check for it here and fall back to "-r".
+  if date --date="@1234" +"$BCT_TIME_FORMAT" 2>&1 | grep -q -- --; then
+    function BCTPrintTime() {
+        date -r "$1" +"$BCT_TIME_FORMAT"
+    }
+  else
+    function BCTPrintTime() {
+        date --date="@$1" +"$BCT_TIME_FORMAT"
+    }
+  fi
 elif hash gdate 2>/dev/null && gdate +'%N' | grep -qv 'N'; then
   BCTTime="gdate '+%s%N'"
   function BCTPrintTime() {
