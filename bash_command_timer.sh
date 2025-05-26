@@ -235,8 +235,8 @@ function BCTRegisterCallbacksWithBashPreexec() {
   precmd_functions+=(BCTPostCommand)
 }
 function BCTRegisterCallbacksDirectly() {
-  trap 'BCTPreCommand' DEBUG
-  PROMPT_COMMAND='BCTPostCommand'
+  trap 'BCTPreCommand "$_"' DEBUG
+  PROMPT_COMMAND+=('BCTPostCommand')
 }
 # Case 1: User-supplied path via BASH_PREEXEC_LOCATION
 if ! [ -z "$BASH_PREEXEC_LOCATION" ] && [ -f "$BASH_PREEXEC_LOCATION" ]; then
