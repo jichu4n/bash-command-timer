@@ -70,6 +70,15 @@ BCT_MILLIS=1
 # characters of last command's output
 BCT_WRAP=0
 
+# If the value is greater than zero and the execution time in seconds
+# is longer than this value, BCT_BELL_STRING will be appended to the timer string.
+# Some terminals (e.g. xterm) set the Urgency hint on their windows when
+# making a bell sound. Together with BCT it is a convenient way to notify
+# that a long running process has finished.
+BCT_BELL_TIME=0
+
+# The string to be printed to ring the bell.
+BCT_BELL_STRING='\a'
 
 
 # IMPLEMENTATION
@@ -216,6 +225,11 @@ function BCTPostCommand() {
   echo -ne "\033[${#output_str}D"
   # Finally, print output.
   echo -e "${output_str_colored}"
+
+  # If the command took long to execute, ring a bell.
+  if [ $BCT_BELL_TIME -gt 0 -a  $command_time -gt $(($BCT_BELL_TIME * $SEC)) ]; then
+    echo -e "${BCT_BELL_STRING}"
+  fi
 }
 
 
